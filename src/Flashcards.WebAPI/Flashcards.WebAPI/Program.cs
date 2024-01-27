@@ -1,3 +1,6 @@
+using Flashcards.WebAPI.Settings;
+using MongoDB.Driver;
+
 namespace Flashcards.WebAPI
 {
 	public class Program
@@ -9,6 +12,18 @@ namespace Flashcards.WebAPI
 			// Add services to the container.
 
 			builder.Services.AddControllers();
+
+			builder.Services.AddSingleton(serviceProvider =>
+			{
+				var configuration = serviceProvider.GetService<IConfiguration>();
+
+				var mongoDbSettings = configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+				var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+
+				var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
+
+				return mongoClient.GetDatabase(serviceSettings.ServiceName);
+			});
 
 			var app = builder.Build();
 
