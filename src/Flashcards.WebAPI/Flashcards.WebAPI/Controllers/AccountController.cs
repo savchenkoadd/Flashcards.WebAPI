@@ -66,5 +66,40 @@ namespace Flashcards.WebAPI.Controllers
 				return Problem(errorMessage);
 			}
 		}
-    }
+
+		//POST: /api/login
+		[HttpPost("[action]")]
+		public async Task<IActionResult> Login(LoginDTO? loginDTO)
+		{
+			if (loginDTO is null)
+			{
+				return BadRequest();
+			}
+
+			if (!ModelState.IsValid)
+			{
+				var errorMessage = string.Join(" | ", ModelState.Values.SelectMany(value => value.Errors).Select(e => e.ErrorMessage));
+
+				return Problem(errorMessage);
+			}
+
+			var result = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password, isPersistent: true, lockoutOnFailure: false);
+
+			if (result.Succeeded)
+			{
+				ApplicationUser? user = await _userManager.FindByEmailAsync(loginDTO.Email);
+
+				if (user is null)
+				{
+					return Problem(statusCode: 400, detail: "The email is not valid.");
+				}
+
+				return Ok();
+			}
+			else
+			{
+				return Problem(statusCode: 400, detail: "Invalid email or password.");
+			}
+		}
+	}
 }
