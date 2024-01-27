@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Flashcards.WebAPI.Controllers
 {
-	[AllowAnonymous]
 	[Route("api")]
 	[ApiController]
 	[ApiVersion("1.1")]
@@ -28,6 +27,7 @@ namespace Flashcards.WebAPI.Controllers
         }
 
 		//POST: /api/register
+		[AllowAnonymous]
 		[HttpPost("[action]")]
 		public async Task<ActionResult<ApplicationUser>> Register(RegisterDTO? registerDTO)
 		{
@@ -68,6 +68,7 @@ namespace Flashcards.WebAPI.Controllers
 		}
 
 		//POST: /api/login
+		[AllowAnonymous]
 		[HttpPost("[action]")]
 		public async Task<IActionResult> Login(LoginDTO? loginDTO)
 		{
@@ -100,6 +101,15 @@ namespace Flashcards.WebAPI.Controllers
 			{
 				return Problem(statusCode: 400, detail: "Invalid email or password.");
 			}
+		}
+
+		//POST: /api/logout
+		[HttpGet("[action]")]
+		public async Task<IActionResult> Logout()
+		{
+			await _signInManager.SignOutAsync();
+
+			return Ok();
 		}
 	}
 }
