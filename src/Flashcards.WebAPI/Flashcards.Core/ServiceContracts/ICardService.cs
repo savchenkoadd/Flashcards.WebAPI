@@ -8,6 +8,6 @@ namespace Flashcards.Core.ServiceContracts
 	{
 		Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards);
 
-		Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId);
+		Task<List<FlashcardResponse>> GetAllAsync(Guid? userId);
 	}
 }

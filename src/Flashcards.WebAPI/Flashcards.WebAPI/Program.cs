@@ -54,11 +54,17 @@ namespace Flashcards.WebAPI
 				options.UseSqlServer(sqlServerSettings.ConnectionString);
 			});
 
+			builder.Services.AddEndpointsApiExplorer();
+			builder.Services.AddSwaggerGen();
+
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			app.UseHsts();
 			app.UseHttpsRedirection();
+
+			app.UseSwagger();
+			app.UseSwaggerUI();
 
 			app.UseRouting();
 			app.UseCors();

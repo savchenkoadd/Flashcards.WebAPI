@@ -13,7 +13,7 @@ namespace Flashcards.Core.DTO.Identity
 
 		[Required]
 		[Phone]
-		public string? Phone { get; set; } = string.Empty;
+		public string? PhoneNumber { get; set; } = string.Empty;
 
 		[Required]
 		public string? Password {  get; set; } = string.Empty;
