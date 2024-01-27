@@ -7,15 +7,15 @@ namespace Flashcards.Infrastructure.Repositories
 {
 	public class CardRepository : IRepository<Flashcard>
 	{
+		private const string COLLECTION_NAME = "flashcards";
+
 		private readonly IMongoCollection<Flashcard> _flashcardsCollection;
-		private readonly FilterDefinitionBuilder<Flashcard> _builder;
 
         public CardRepository(
-				IMongoDatabase mongoDatabase, string collectionName
+				IMongoDatabase mongoDatabase
 			)
         {
-			_flashcardsCollection = mongoDatabase.GetCollection<Flashcard>(collectionName);
-			_builder = Builders<Flashcard>.Filter;
+			_flashcardsCollection = mongoDatabase.GetCollection<Flashcard>(COLLECTION_NAME);
         }
 
         public async Task CreateAsync(Flashcard entity)

@@ -1,12 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Flashcards.Core.Services.Helpers
 {
-	internal class ValidationHelper
+	internal static class ValidationHelper
 	{
+		internal async static Task ValidateObjects(params object?[]? objects)
+		{
+			if (objects is null)
+			{
+				throw new ArgumentNullException(nameof(objects));
+			}
+
+			foreach (var obj in objects)
+			{
+				if (obj is null)
+				{
+					throw new ArgumentNullException(nameof(obj));
+				}
+
+				ValidationContext validationContext = new ValidationContext(obj);
+				List<ValidationResult> validationResults = new List<ValidationResult>();
+
+				if (!Validator.TryValidateObject(obj, validationContext, validationResults, validateAllProperties: true))
+				{
+					throw new ArgumentException(validationResults.First().ErrorMessage);
+				}
+			}
+
+			await Task.CompletedTask;
+		}
 	}
 }
