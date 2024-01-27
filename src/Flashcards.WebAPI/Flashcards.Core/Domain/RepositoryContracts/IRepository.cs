@@ -8,7 +8,7 @@ namespace Flashcards.Core.Domain.RepositoryContracts
 
 		Task CreateAsync(T entity);
 
-		Task<bool> DeleteAsync(Guid id);
+		Task<int> DeleteAsync(Expression<Func<T, bool>> expression);
 
 		Task<IReadOnlyCollection<T>> GetAllAsync(Expression<Func<T, bool>> expression);
 	}

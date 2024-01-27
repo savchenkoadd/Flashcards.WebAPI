@@ -23,25 +23,21 @@ namespace Flashcards.Infrastructure.Repositories
 			await _flashcardsCollection.InsertOneAsync(entity);
 		}
 
-		public async Task<int> DeleteAsync(Guid id)
+		public async Task<int> DeleteAsync(Expression<Func<Flashcard, bool>> expression)
 		{
-			var filterDefinition = _builder.Eq(temp => temp.CardId, id);
-
-			var result = await _flashcardsCollection.DeleteOneAsync(filterDefinition);
+			var result = await _flashcardsCollection.DeleteOneAsync(expression);
 
 			return (int)result.DeletedCount;
 		}
 
-		public async Task<IReadOnlyCollection<Flashcard>> GetAllAsync(Expression<Func<Flashcard, bool>> expression)
+		public async Task<IEnumerable<Flashcard>> GetAllAsync(Expression<Func<Flashcard, bool>> expression)
 		{
 			return await _flashcardsCollection.Find(expression).ToListAsync();
 		}
 
-		public async Task<int> UpdateAsync(Guid id, Flashcard entity)
+		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard entity)
 		{
-			var filterDefinition = _builder.Eq(temp => temp.CardId, id);
-
-			var result = await _flashcardsCollection.ReplaceOneAsync(filterDefinition, entity);
+			var result = await _flashcardsCollection.ReplaceOneAsync(expression, entity);
 
 			return (int)result.ModifiedCount;
 		}

@@ -6,10 +6,8 @@ namespace Flashcards.Core.ServiceContracts
 {
 	public interface ICardService
 	{
-		Task<int> SyncCards(IReadOnlyCollection<FlashcardRequest>? flashcards);
+		Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards);
 
-		Task<IReadOnlyCollection<FlashcardResponse>> GetAllAsync(Guid? userId);
-
-		Task<IReadOnlyCollection<FlashcardResponse>> DeleteAllAsync(List<Guid>? cardsIds);
+		Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId);
 	}
 }
