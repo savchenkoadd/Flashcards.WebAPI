@@ -24,6 +24,11 @@ namespace Flashcards.WebAPI.Controllers
         }
 
 		//GET: /api/GetAllCards
+		/// <summary>
+		/// Gets all cards related to a specific user.
+		/// To use this endpoint, you must be logged in.
+		/// </summary>
+		/// <returns>List of retrieved flashcards</returns>
 		[HttpGet("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> GetAllCards()
 		{
@@ -35,6 +40,15 @@ namespace Flashcards.WebAPI.Controllers
 		}
 
 		//POST: /api/SyncCards
+		/// <summary>
+		/// Synchronizes received cards with the cards in the storage. 
+		/// Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
+		/// Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
+		/// Changed cards will be automatically updated in the storage.
+		/// To use this endpoint, you must be logged in.
+		/// </summary>
+		/// <param name="flashcards">Provided list of cards.</param>
+		/// <returns>Number of affected rows after synchronizing.</returns>
 		[HttpPost("[action]")]
         public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
 		{

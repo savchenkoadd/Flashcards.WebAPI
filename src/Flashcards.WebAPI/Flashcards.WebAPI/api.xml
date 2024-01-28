@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Flashcards.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:Flashcards.WebAPI.Controllers.AccountController.Register(Flashcards.Core.DTO.Identity.RegisterDTO)">
+            <summary>
+            Registers a user in the API system.
+            </summary>
+            <param name="registerDTO">Valid data for registration.</param>
+            <returns>Registered user.</returns>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.AccountController.Login(Flashcards.Core.DTO.Identity.LoginDTO)">
+            <summary>
+            Performs login functionality.
+            </summary>
+            <param name="loginDTO">Valid data for login.</param>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.AccountController.Logout">
+            <summary>
+            Performs logout functionality.
+            To use this endpoint, you must be logged in.
+            </summary>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.GetAllCards">
+            <summary>
+            Gets all cards related to a specific user.
+            To use this endpoint, you must be logged in.
+            </summary>
+            <returns>List of retrieved flashcards</returns>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.SyncCards(System.Collections.Generic.List{Flashcards.Core.DTO.FlashcardRequest})">
+            <summary>
+            Synchronizes received cards with the cards in the storage. 
+            Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
+            Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
+            Changed cards will be automatically updated in the storage.
+            To use this endpoint, you must be logged in.
+            </summary>
+            <param name="flashcards">Provided list of cards.</param>
+            <returns>Number of affected rows after synchronizing.</returns>
+        </member>
+    </members>
+</doc>

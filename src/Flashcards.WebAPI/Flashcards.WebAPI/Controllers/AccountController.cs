@@ -27,6 +27,11 @@ namespace Flashcards.WebAPI.Controllers
         }
 
 		//POST: /api/register
+		/// <summary>
+		/// Registers a user in the API system.
+		/// </summary>
+		/// <param name="registerDTO">Valid data for registration.</param>
+		/// <returns>Registered user.</returns>
 		[AllowAnonymous]
 		[HttpPost("[action]")]
 		public async Task<ActionResult<ApplicationUser>> Register(RegisterDTO? registerDTO)
@@ -68,6 +73,10 @@ namespace Flashcards.WebAPI.Controllers
 		}
 
 		//POST: /api/login
+		/// <summary>
+		/// Performs login functionality.
+		/// </summary>
+		/// <param name="loginDTO">Valid data for login.</param>
 		[AllowAnonymous]
 		[HttpPost("[action]")]
 		public async Task<IActionResult> Login(LoginDTO? loginDTO)
@@ -104,6 +113,10 @@ namespace Flashcards.WebAPI.Controllers
 		}
 
 		//POST: /api/logout
+		/// <summary>
+		/// Performs logout functionality.
+		/// To use this endpoint, you must be logged in.
+		/// </summary>
 		[HttpGet("[action]")]
 		public async Task<IActionResult> Logout()
 		{
