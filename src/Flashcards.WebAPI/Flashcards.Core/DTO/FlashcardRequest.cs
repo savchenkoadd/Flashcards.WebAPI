@@ -5,7 +5,6 @@ namespace Flashcards.Core.DTO
 	public class FlashcardRequest
 	{
 		[Required]
-		[Key]
 		public Guid CardId { get; set; }
 
 		[Required]

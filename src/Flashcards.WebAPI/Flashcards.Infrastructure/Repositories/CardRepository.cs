@@ -32,12 +32,23 @@ namespace Flashcards.Infrastructure.Repositories
 
 		public async Task<IEnumerable<Flashcard>> GetAllAsync(Expression<Func<Flashcard, bool>> expression)
 		{
-			return await _flashcardsCollection.Find(expression).ToListAsync();
+			var found = await _flashcardsCollection.FindAsync(expression);
+
+			return await found.ToListAsync();
 		}
 
-		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard entity)
+		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)	
 		{
-			var result = await _flashcardsCollection.ReplaceOneAsync(expression, entity);
+			var found = (await GetAllAsync(temp => temp.CardId == card.CardId)).First();
+
+			card._id = found._id;
+
+			if (card.Equals(found))
+			{
+				return 0;
+			}
+
+			var result = await _flashcardsCollection.ReplaceOneAsync(expression, card);
 
 			return (int)result.ModifiedCount;
 		}

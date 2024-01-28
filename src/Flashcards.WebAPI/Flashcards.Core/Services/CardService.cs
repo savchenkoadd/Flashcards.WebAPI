@@ -2,6 +2,7 @@
 using Flashcards.Core.Domain.RepositoryContracts;
 using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
+using Flashcards.Core.Services.Comparers;
 using Flashcards.Core.Services.Helpers;
 
 namespace Flashcards.Core.Services
@@ -32,48 +33,52 @@ namespace Flashcards.Core.Services
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
+			// Validate input parameters
 			await ValidationHelper.ValidateObjects(flashcards, userId);
 
 			var totallyAffected = 0;
-			var cards = new List<Flashcard>();
-
-			foreach (var item in flashcards)
+			var cards = flashcards.Select(item => new Flashcard
 			{
-				cards.Add(new Flashcard()
-				{
-					CardId = item.CardId,
-					EFactor = item.EFactor,
-					MainSide = item.MainSide,
-					OppositeSide = item.OppositeSide,
-					RepeatInDays = item.RepeatInDays,
-					RepetitionCount = item.RepetitionCount,
-					UserId = userId.Value
-				});
-			}
+				CardId = item.CardId,
+				EFactor = item.EFactor,
+				MainSide = item.MainSide,
+				OppositeSide = item.OppositeSide,
+				RepeatInDays = item.RepeatInDays,
+				RepetitionCount = item.RepetitionCount,
+				UserId = userId.Value
+			}).ToList();
 
+			// Retrieve all cards for the user
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
 
 			foreach (var item in cards)
 			{
-				if (!allCards.Contains(item))
+				// Check if the card already exists
+				var existingCard = allCards.FirstOrDefault(temp => temp.CardId == item.CardId);
+
+				if (existingCard == null)
 				{
+					// Create a new card
 					await _repository.CreateAsync(item);
 					totallyAffected++;
 				}
 				else
 				{
+					// Update existing card
 					totallyAffected += await _repository.UpdateAsync(temp => temp.CardId == item.CardId, item);
 				}
 			}
 
-			var cardsToDelete = allCards.Where(temp => !cards.Contains(temp));
+			// Identify cards to delete
+			var cardsToDelete = allCards.Except(cards, new FlashcardEqualityComparer());
 
+			// Delete cards
 			foreach (var card in cardsToDelete)
 			{
 				totallyAffected += await _repository.DeleteAsync(temp => temp.CardId == card.CardId);
 			}
 
-			return new AffectedResponse() { Affected = totallyAffected };
+			return new AffectedResponse { Affected = totallyAffected };
 		}
 	}
 }

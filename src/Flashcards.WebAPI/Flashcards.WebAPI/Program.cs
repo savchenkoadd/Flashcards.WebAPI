@@ -8,6 +8,7 @@ using Flashcards.Infrastructure.Repositories;
 using Flashcards.WebAPI.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
@@ -56,6 +57,11 @@ namespace Flashcards.WebAPI
 
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+
+			builder.Services.AddAuthorization(options =>
+			{
+				options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+			});
 
 			var app = builder.Build();
 
