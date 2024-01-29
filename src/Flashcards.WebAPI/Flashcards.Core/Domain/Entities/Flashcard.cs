@@ -14,11 +14,11 @@ namespace Flashcards.Core.Domain.Entities
 
 		public Guid UserId { get; set; }
 
-		public float EFactor { get; set; } = 2.5f;
+		public float EFactor { get; set; }
 
-		public int RepetitionCount { get; set; } = 0;
+		public int RepetitionCount { get; set; }
 
-		public DateOnly NextRepeatDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+		public DateOnly NextRepeatDate { get; set; }
 
 		[StringLength(100)]
 		public string MainSide { get; set; }

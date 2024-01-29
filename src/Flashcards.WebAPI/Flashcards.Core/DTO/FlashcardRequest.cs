@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MongoDB.Bson;
+using System.ComponentModel.DataAnnotations;
 
 namespace Flashcards.Core.DTO
 {
@@ -15,12 +16,16 @@ namespace Flashcards.Core.DTO
 		[StringLength(500)]
 		public string? OppositeSide { get; set; }
 
+		[Required]
 		[Range(0, float.MaxValue)]
-		public float EFactor { get; set; } = 2.5f;
+		public float EFactor { get; set; } 
 
+		[Required]
 		[Range(0, int.MaxValue)]
-		public int RepetitionCount { get; set; } = 0;
+		public int RepetitionCount { get; set; }
 
-		public DateOnly NextRepeatDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+		[Required]
+		[DataType(DataType.Date, ErrorMessage = "DateTime is not valid.")]
+		public DateOnly NextRepeatDate { get; set; }
 	}
 }
