@@ -61,10 +61,10 @@ namespace Flashcards.WebAPI
 				options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml"));
 			});
 
-			builder.Services.AddAuthorization(options =>
-			{
-				options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-			});
+			//builder.Services.AddAuthorization(options =>
+			//{
+			//	options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+			//});
 
 			var app = builder.Build();
 

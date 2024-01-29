@@ -1,7 +1,6 @@
 ﻿using Flashcards.Core.Domain.Identity;
 using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +31,11 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> GetAllCards()
 		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
+			}
+
 			var userId = (await _userManager.GetUserAsync(User)).Id;
 
 			var cards = await _cardService.GetAllAsync(userId);
@@ -52,6 +56,11 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
         public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
 		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
+			}
+
 			var user = (await _userManager.GetUserAsync(User));
 
 			return await _cardService.SyncCards(user.Id, flashcards);

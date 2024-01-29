@@ -120,6 +120,11 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<IActionResult> Logout()
 		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
+			}
+
 			await _signInManager.SignOutAsync();
 
 			return Ok();

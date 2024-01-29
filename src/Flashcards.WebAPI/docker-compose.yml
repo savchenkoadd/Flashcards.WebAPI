@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  flashcards.webapi:
+    image: ${DOCKER_REGISTRY-}flashcardswebapi
+    build:
+      context: .
+      dockerfile: Flashcards.WebAPI\Dockerfile
+      
+  mongo:
+    image: mongo
+    container_name: mongodatabase
+    ports:
+      - 27017:27017  
