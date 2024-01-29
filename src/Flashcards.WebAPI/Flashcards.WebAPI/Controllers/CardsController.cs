@@ -24,7 +24,8 @@ namespace Flashcards.WebAPI.Controllers
 
 		//GET: /api/GetAllCards
 		/// <summary>
-		/// Gets all cards related to a specific user.
+		/// Retrieves all cards related to a specific user.
+		/// The property "nextRepeatDate" is provided in the following format: yyyy-MM-dd.
 		/// To use this endpoint, you must be logged in.
 		/// </summary>
 		/// <returns>List of retrieved flashcards</returns>
@@ -49,9 +50,10 @@ namespace Flashcards.WebAPI.Controllers
 		/// Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
 		/// Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
 		/// Changed cards will be automatically updated in the storage.
+		/// You should provide "nextRepeatDate" property in the following format: yyyy-MM-dd.
 		/// To use this endpoint, you must be logged in.
 		/// </summary>
-		/// <param name="flashcards">Provided list of cards.</param>
+		/// <param name="flashcards">List of cards.</param>
 		/// <returns>Number of affected rows after synchronizing.</returns>
 		[HttpPost("[action]")]
         public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)

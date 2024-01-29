@@ -26,7 +26,7 @@ namespace Flashcards.Core.Services
 				EFactor = temp.EFactor,
 				MainSide = temp.MainSide,
 				OppositeSide = temp.OppositeSide,
-				RepeatInDays = temp.RepeatInDays,
+				NextRepeatDate = temp.NextRepeatDate,
 				RepetitionCount = temp.RepetitionCount
 			}).ToList();
 		}
@@ -43,7 +43,7 @@ namespace Flashcards.Core.Services
 				EFactor = item.EFactor,
 				MainSide = item.MainSide,
 				OppositeSide = item.OppositeSide,
-				RepeatInDays = item.RepeatInDays,
+				NextRepeatDate = item.NextRepeatDate,
 				RepetitionCount = item.RepetitionCount,
 				UserId = userId.Value
 			}).ToList();
