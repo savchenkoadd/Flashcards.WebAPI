@@ -21,7 +21,6 @@ namespace Flashcards.Core.DTO
 		[Range(0, int.MaxValue)]
 		public int RepetitionCount { get; set; } = 0;
 
-		[Range(0, int.MaxValue)]
-		public int RepeatInDays { get; set; } = 0;
+		public DateOnly NextRepeatDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 	}
 }

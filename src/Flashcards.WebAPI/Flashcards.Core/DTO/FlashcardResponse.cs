@@ -16,6 +16,6 @@ namespace Flashcards.Core.DTO
 
 		public int RepetitionCount { get; set; } = 0;
 
-		public int RepeatInDays { get; set; } = 0;
+		public DateOnly NextRepeatDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 	}
 }

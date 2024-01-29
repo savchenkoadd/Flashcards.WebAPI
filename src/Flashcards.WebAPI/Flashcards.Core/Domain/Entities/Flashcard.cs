@@ -18,7 +18,7 @@ namespace Flashcards.Core.Domain.Entities
 
 		public int RepetitionCount { get; set; } = 0;
 
-		public int RepeatInDays { get; set; } = 0;
+		public DateOnly NextRepeatDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
 		[StringLength(100)]
 		public string MainSide { get; set; }
