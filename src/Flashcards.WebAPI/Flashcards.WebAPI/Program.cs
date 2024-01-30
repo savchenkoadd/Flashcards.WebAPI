@@ -22,6 +22,8 @@ namespace Flashcards.WebAPI
 
 			builder.Services.AddControllers();
 
+			builder.Services.AddTransient<IJwtService, JwtService>();
+
 			builder.Services.AddScoped(serviceProvider =>
 			{
 				var configuration = serviceProvider.GetService<IConfiguration>();

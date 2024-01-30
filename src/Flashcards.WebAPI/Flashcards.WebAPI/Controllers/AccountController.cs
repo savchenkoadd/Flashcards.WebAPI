@@ -1,5 +1,6 @@
 ﻿using Flashcards.Core.Domain.Identity;
 using Flashcards.Core.DTO.Identity;
+using Flashcards.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +15,19 @@ namespace Flashcards.WebAPI.Controllers
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly RoleManager<ApplicationRole> _roleManager;
+		private readonly IJwtService _jwtService;
 
         public AccountController(
 				UserManager<ApplicationUser> userManager,
 				SignInManager<ApplicationUser> signInManager,
-				RoleManager<ApplicationRole> roleManager
+				RoleManager<ApplicationRole> roleManager,
+				IJwtService jwtService
 			)
         {
             _roleManager = roleManager;
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_jwtService = jwtService;
         }
 
 		//POST: /api/register
@@ -62,7 +66,9 @@ namespace Flashcards.WebAPI.Controllers
 			{
 				await _signInManager.SignInAsync(user, isPersistent: true);
 
-				return Ok(user);
+				var authenticationResponse = await _jwtService.CreateJwtToken(user);
+
+				return Ok(authenticationResponse);
 			}
 			else
 			{
@@ -104,7 +110,9 @@ namespace Flashcards.WebAPI.Controllers
 					return Problem(statusCode: 400, detail: "The email is not valid.");
 				}
 
-				return Ok();
+				var authenticationResponse = await _jwtService.CreateJwtToken(user);
+
+				return Ok(authenticationResponse);
 			}
 			else
 			{
