@@ -5,6 +5,6 @@ namespace Flashcards.Core.ServiceContracts
 {
     public interface IJwtService
     {
-        AuthenticationResponse CreateJwtToken(ApplicationUser applicationUser);
+        Task<AuthenticationResponse> CreateJwtToken(ApplicationUser applicationUser);
     }
 }
