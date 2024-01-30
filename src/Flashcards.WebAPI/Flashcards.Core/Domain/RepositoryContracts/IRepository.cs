@@ -11,5 +11,7 @@ namespace Flashcards.Core.Domain.RepositoryContracts
 		Task<int> DeleteAsync(Expression<Func<T, bool>> expression);
 
 		Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression);
+
+		Task<long> Count(Expression<Func<T, bool>> expression);
 	}
 }

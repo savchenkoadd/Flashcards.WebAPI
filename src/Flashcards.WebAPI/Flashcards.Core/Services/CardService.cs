@@ -16,7 +16,7 @@ namespace Flashcards.Core.Services
 			_repository = repository;
 		}
 
-		public async Task<List<FlashcardResponse>> GetAllAsync(Guid? userId)
+		public async Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId)
 		{
 			await ValidationHelper.ValidateObjects(userId);
 
@@ -28,7 +28,7 @@ namespace Flashcards.Core.Services
 				OppositeSide = temp.OppositeSide,
 				NextRepeatDate = temp.NextRepeatDate,
 				RepetitionCount = temp.RepetitionCount
-			}).ToList();
+			});
 		}
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)

@@ -34,7 +34,7 @@ namespace Flashcards.Infrastructure.Repositories
 		{
 			var found = await _flashcardsCollection.FindAsync(expression);
 
-			return await found.ToListAsync();
+			return found.ToEnumerable();
 		}
 
 		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)	
@@ -51,6 +51,11 @@ namespace Flashcards.Infrastructure.Repositories
 			var result = await _flashcardsCollection.ReplaceOneAsync(expression, card);
 
 			return (int)result.ModifiedCount;
+		}
+
+		public async Task<long> Count(Expression<Func<Flashcard, bool>> expression)
+		{
+			return await _flashcardsCollection.CountDocumentsAsync(expression);
 		}
 	}
 }
