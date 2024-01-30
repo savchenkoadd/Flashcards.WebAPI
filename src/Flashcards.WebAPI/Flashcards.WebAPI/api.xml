@@ -43,5 +43,12 @@
             <param name="flashcards">List of cards.</param>
             <returns>Number of affected rows after synchronizing.</returns>
         </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.DeleteCards(System.Guid[])">
+            <summary>
+            Deletes cards in the storage with the provided ids.
+            </summary>
+            <param name="cardsIds">Ids of cards to be deleted</param>
+            <returns>Count of deleted rows</returns>
+        </member>
     </members>
 </doc>

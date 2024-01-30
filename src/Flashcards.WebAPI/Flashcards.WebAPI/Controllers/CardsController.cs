@@ -67,5 +67,17 @@ namespace Flashcards.WebAPI.Controllers
 
 			return await _cardService.SyncCards(user.Id, flashcards);
 		}
+
+		//POST: /api/DeleteCards
+		/// <summary>
+		/// Deletes cards in the storage with the provided ids.
+		/// </summary>
+		/// <param name="cardsIds">Ids of cards to be deleted</param>
+		/// <returns>Count of deleted rows</returns>
+		[HttpPost("[action]")]
+		public async Task<ActionResult<AffectedResponse>> DeleteCards(Guid[]? cardsIds)
+		{
+			return await _cardService.DeleteCards(cardsIds);
+		}
 	}
 }

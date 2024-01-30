@@ -57,7 +57,7 @@ namespace Flashcards.Core.Services
 				throw new NullReferenceException("Unable to retrieve local cards.");
 			}
 
-			var result = localCards.Union(_mapper.Map<IEnumerable<Flashcard>>(flashcards));
+			var result = localCards.Union(await ConvertRequests(userId!.Value, flashcards!));
 
 			var cardsToCreate = new HashSet<Flashcard>(result.Count());
 
@@ -83,7 +83,7 @@ namespace Flashcards.Core.Services
 
 			var totallyAffected = 0;
 
-			var cards = _mapper.Map<List<Flashcard>>(flashcards);
+			var cards = await ConvertRequests(userId!.Value, flashcards!);
 
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
 
@@ -110,6 +110,20 @@ namespace Flashcards.Core.Services
 			}
 
 			return new AffectedResponse { Affected = totallyAffected };
+		}
+
+		private async Task<IEnumerable<Flashcard>> ConvertRequests(Guid userId, IEnumerable<FlashcardRequest> flashcards)
+		{
+			return await Task.FromResult(flashcards.Select(temp => new Flashcard()
+			{
+				CardId = temp.CardId,
+				EFactor = temp.EFactor,
+				NextRepeatDate = temp.NextRepeatDate,
+				MainSide = temp.MainSide,
+				OppositeSide = temp.OppositeSide,
+				RepetitionCount = temp.RepetitionCount,
+				UserId = userId
+			}));
 		}
 	}
 }

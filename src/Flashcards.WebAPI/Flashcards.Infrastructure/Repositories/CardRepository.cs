@@ -33,9 +33,9 @@ namespace Flashcards.Infrastructure.Repositories
 
 		public async Task<IEnumerable<Flashcard>> GetAllAsync(Expression<Func<Flashcard, bool>> expression)
 		{
-			var found = await _flashcardsCollection.FindAsync(expression);
+			var found = await(await _flashcardsCollection.FindAsync(expression)).ToListAsync();
 
-			return found.ToEnumerable();
+			return found;
 		}
 
 		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)
