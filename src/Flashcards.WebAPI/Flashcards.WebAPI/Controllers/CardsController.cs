@@ -46,6 +46,7 @@ namespace Flashcards.WebAPI.Controllers
 
 		//POST: /api/SyncCards
 		/// <summary>
+		/// Currently obsolete.
 		/// Synchronizes received cards with the cards in the storage. 
 		/// Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
 		/// Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
@@ -77,7 +78,26 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
 		public async Task<ActionResult<AffectedResponse>> DeleteCards(Guid[]? cardsIds)
 		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
+			}
+
 			return await _cardService.DeleteCards(cardsIds);
+		}
+
+		//POST: /api/SyncAndGetCards
+		[HttpPost("[action]")]
+		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest> flashcards)
+		{
+			if (!User.Identity.IsAuthenticated)
+			{
+				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
+			}
+
+			var user = (await _userManager.GetUserAsync(User));
+
+			return (await _cardService.SyncAndGetCards(user.Id, flashcards)).ToList();
 		}
 	}
 }
