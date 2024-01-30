@@ -1,4 +1,5 @@
-﻿using Flashcards.Core.Domain.Entities;
+﻿using AutoMapper;
+using Flashcards.Core.Domain.Entities;
 using Flashcards.Core.Domain.RepositoryContracts;
 using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
@@ -10,10 +11,15 @@ namespace Flashcards.Core.Services
 	public class CardService : ICardService
 	{
 		private readonly IRepository<Flashcard> _repository;
+		private readonly IMapper _mapper;
 
-		public CardService(IRepository<Flashcard> repository)
+		public CardService(
+				IRepository<Flashcard> repository,
+				IMapper mapper
+			)
 		{
 			_repository = repository;
+			_mapper = mapper;
 		}
 
 		public async Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId)
@@ -31,22 +37,27 @@ namespace Flashcards.Core.Services
 			});
 		}
 
+		public async Task<IEnumerable<FlashcardResponse>> SyncAndGetCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
+		{
+			await ValidationHelper.ValidateObjects(userId, flashcards);
+
+			var localCards = (await _repository.GetAllAsync(temp => true)).ToHashSet();
+
+			if (localCards is null)
+			{
+				throw new NullReferenceException("Unable to retrieve local cards.");
+			}
+
+		}
+
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
 			// Validate input parameters
 			await ValidationHelper.ValidateObjects(flashcards, userId);
 
 			var totallyAffected = 0;
-			var cards = flashcards.Select(item => new Flashcard
-			{
-				CardId = item.CardId,
-				EFactor = item.EFactor,
-				MainSide = item.MainSide,
-				OppositeSide = item.OppositeSide,
-				NextRepeatDate = item.NextRepeatDate,
-				RepetitionCount = item.RepetitionCount,
-				UserId = userId.Value
-			}).ToList();
+
+			var cards = _mapper.Map<List<Flashcard>>(flashcards);
 
 			// Retrieve all cards for the user
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
