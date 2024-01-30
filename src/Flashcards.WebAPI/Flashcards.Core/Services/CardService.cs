@@ -48,42 +48,53 @@ namespace Flashcards.Core.Services
 				throw new NullReferenceException("Unable to retrieve local cards.");
 			}
 
+			var result = localCards.Union(_mapper.Map<IEnumerable<Flashcard>>(flashcards));
+
+			var cardsToCreate = new HashSet<Flashcard>(result.Count());
+
+			if (result.Count() > localCards.Count)
+			{
+				foreach (var item in result)
+				{
+					if (!localCards.Contains(item))
+					{
+						cardsToCreate.Add(item);
+					}
+				}
+			}
+
+			await _repository.CreateManyAsync(cardsToCreate);
+
+			return _mapper.Map<IEnumerable<FlashcardResponse>>(result);
 		}
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
-			// Validate input parameters
 			await ValidationHelper.ValidateObjects(flashcards, userId);
 
 			var totallyAffected = 0;
 
 			var cards = _mapper.Map<List<Flashcard>>(flashcards);
 
-			// Retrieve all cards for the user
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
 
 			foreach (var item in cards)
 			{
-				// Check if the card already exists
 				var existingCard = allCards.FirstOrDefault(temp => temp.CardId == item.CardId);
 
 				if (existingCard == null)
 				{
-					// Create a new card
 					await _repository.CreateAsync(item);
 					totallyAffected++;
 				}
 				else
 				{
-					// Update existing card
 					totallyAffected += await _repository.UpdateAsync(temp => temp.CardId == item.CardId, item);
 				}
 			}
 
-			// Identify cards to delete
 			var cardsToDelete = allCards.Except(cards, new FlashcardEqualityComparer());
 
-			// Delete cards
 			foreach (var card in cardsToDelete)
 			{
 				totallyAffected += await _repository.DeleteAsync(temp => temp.CardId == card.CardId);

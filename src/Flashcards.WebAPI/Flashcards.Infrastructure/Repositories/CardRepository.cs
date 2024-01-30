@@ -57,5 +57,10 @@ namespace Flashcards.Infrastructure.Repositories
 		{
 			return await _flashcardsCollection.CountDocumentsAsync(expression);
 		}
+
+		public async Task CreateManyAsync(IEnumerable<Flashcard> entities)
+		{
+			await _flashcardsCollection.InsertManyAsync(entities);
+		}
 	}
 }

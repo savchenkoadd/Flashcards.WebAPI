@@ -41,7 +41,7 @@ namespace Flashcards.WebAPI.Controllers
 
 			var cards = await _cardService.GetAllAsync(userId);
 
-			return cards;
+			return cards.ToList();
 		}
 
 		//POST: /api/SyncCards

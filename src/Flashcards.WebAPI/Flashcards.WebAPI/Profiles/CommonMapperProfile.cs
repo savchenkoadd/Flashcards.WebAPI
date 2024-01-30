@@ -8,7 +8,8 @@ namespace Flashcards.WebAPI.Profiles
 	{
         public CommonMapperProfile()
         {
-            CreateMap<FlashcardRequest, Flashcard>().ReverseMap();
-        }
+            CreateMap<FlashcardRequest, Flashcard>();
+			CreateMap<Flashcard, FlashcardResponse>();
+		}
     }
 }
