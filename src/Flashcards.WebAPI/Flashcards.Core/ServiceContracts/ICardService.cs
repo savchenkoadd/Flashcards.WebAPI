@@ -11,5 +11,7 @@ namespace Flashcards.Core.ServiceContracts
 		Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId);
 
 		Task<IEnumerable<FlashcardResponse>> SyncAndGetCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards);
+
+		Task<AffectedResponse> DeleteCards(Guid[]? cardIds);
 	}
 }

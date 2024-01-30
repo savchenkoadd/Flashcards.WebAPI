@@ -10,15 +10,16 @@ namespace Flashcards.Infrastructure.Repositories
 		private const string COLLECTION_NAME = "flashcards";
 
 		private readonly IMongoCollection<Flashcard> _flashcardsCollection;
+		private readonly FilterDefinitionBuilder<Flashcard> _builder = Builders<Flashcard>.Filter;
 
-        public CardRepository(
+		public CardRepository(
 				IMongoDatabase mongoDatabase
 			)
-        {
+		{
 			_flashcardsCollection = mongoDatabase.GetCollection<Flashcard>(COLLECTION_NAME);
-        }
+		}
 
-        public async Task CreateAsync(Flashcard entity)
+		public async Task CreateAsync(Flashcard entity)
 		{
 			await _flashcardsCollection.InsertOneAsync(entity);
 		}
@@ -37,7 +38,7 @@ namespace Flashcards.Infrastructure.Repositories
 			return found.ToEnumerable();
 		}
 
-		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)	
+		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)
 		{
 			var found = (await GetAllAsync(temp => temp.CardId == card.CardId)).First();
 
@@ -61,6 +62,14 @@ namespace Flashcards.Infrastructure.Repositories
 		public async Task CreateManyAsync(IEnumerable<Flashcard> entities)
 		{
 			await _flashcardsCollection.InsertManyAsync(entities);
+		}
+
+		public async Task<long> DeleteManyAsync(IEnumerable<Guid> guids)
+		{
+			var filter = _builder.In(card => card.CardId, guids);
+			var result = await _flashcardsCollection.DeleteManyAsync(filter);
+
+			return result.DeletedCount;
 		}
 	}
 }

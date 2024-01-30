@@ -2,6 +2,6 @@
 {
 	public class AffectedResponse
 	{
-		public int Affected { get; set; }
+		public long Affected { get; set; }
 	}
 }

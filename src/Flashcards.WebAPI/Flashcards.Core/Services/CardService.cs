@@ -22,6 +22,15 @@ namespace Flashcards.Core.Services
 			_mapper = mapper;
 		}
 
+		public async Task<AffectedResponse> DeleteCards(Guid[]? cardIds)
+		{
+			await ValidationHelper.ValidateObjects(cardIds);
+
+			var deleted = await _repository.DeleteManyAsync(cardIds!);
+
+			return new AffectedResponse { Affected = deleted };
+		}
+
 		public async Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId)
 		{
 			await ValidationHelper.ValidateObjects(userId);
