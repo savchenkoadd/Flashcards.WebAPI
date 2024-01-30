@@ -47,9 +47,20 @@
         <member name="M:Flashcards.WebAPI.Controllers.CardsController.DeleteCards(System.Guid[])">
             <summary>
             Deletes cards in the storage with the provided ids.
+            To use this endpoint, you must be logged in.
             </summary>
             <param name="cardsIds">Ids of cards to be deleted</param>
             <returns>Count of deleted rows</returns>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.SyncAndGetCards(System.Collections.Generic.IEnumerable{Flashcards.Core.DTO.FlashcardRequest})">
+            <summary>
+            Synchronizes (Unions) the cards with enhanced performance.
+            Cards that exist in the provided list, but do not exist in the storage will be inserted into the storage.
+            Cards that do not exist in the provided list, but exist in the storage will be inserted into the returned result.
+            To use this endpoint, you must be logged in.
+            </summary>
+            <param name="flashcards">External cards list</param>
+            <returns>Result of sync.</returns>
         </member>
     </members>
 </doc>

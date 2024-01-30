@@ -72,6 +72,7 @@ namespace Flashcards.WebAPI.Controllers
 		//POST: /api/DeleteCards
 		/// <summary>
 		/// Deletes cards in the storage with the provided ids.
+		/// To use this endpoint, you must be logged in.
 		/// </summary>
 		/// <param name="cardsIds">Ids of cards to be deleted</param>
 		/// <returns>Count of deleted rows</returns>
@@ -87,6 +88,14 @@ namespace Flashcards.WebAPI.Controllers
 		}
 
 		//POST: /api/SyncAndGetCards
+		/// <summary>
+		/// Synchronizes (Union) the cards with enhanced performance.
+		/// Cards that exist in the provided list, but do not exist in the storage will be inserted into the storage.
+		/// Cards that do not exist in the provided list, but exist in the storage will be inserted into the returned result.
+		/// To use this endpoint, you must be logged in.
+		/// </summary>
+		/// <param name="flashcards">External cards list</param>
+		/// <returns>Result of sync.</returns>
 		[HttpPost("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest> flashcards)
 		{
