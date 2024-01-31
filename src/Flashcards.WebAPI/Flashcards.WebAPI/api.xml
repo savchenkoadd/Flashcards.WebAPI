@@ -33,7 +33,7 @@
         </member>
         <member name="M:Flashcards.WebAPI.Controllers.CardsController.SyncCards(System.Collections.Generic.List{Flashcards.Core.DTO.FlashcardRequest})">
             <summary>
-            Currently obsolete.
+            OBSOLETE.
             Synchronizes received cards with the cards in the storage. 
             Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
             Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.

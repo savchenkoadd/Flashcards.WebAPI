@@ -51,50 +51,45 @@ namespace Flashcards.Core.Services
 		{
 			await ValidationHelper.ValidateObjects(userId, flashcards);
 
-			var cardsIdsToDelete = flashcards!.Where(temp => temp.WhetherToDelete == true).Select(temp => temp.CardId);
-			var userFlashcards = (await ConvertRequests(userId!.Value, flashcards!)).ToList();
+			var syncHelper = InitializeSyncHelper(userId!.Value);
+
+			var cardsIdsToDelete = await syncHelper.RetrieveCardsIdsToBeDeleted(flashcards!);
+			var userFlashcards = (await syncHelper.ConvertRequests(flashcards!)).ToList();
 
 			userFlashcards.RemoveAll(temp => cardsIdsToDelete.Contains(temp.CardId));
 
 			await _repository.DeleteManyAsync(cardsIdsToDelete);
 
-			var localCards = (await _repository.GetAllAsync(temp => temp.UserId == userId!.Value)).ToHashSet();
+			var localCards = await syncHelper.RetrieveCardsFromStorage();
 
-			var updatedAnyCard = false;
-
-			foreach (var flashcard in userFlashcards)
-			{
-				if (localCards.Contains(flashcard, new FlashcardIdEqualityComparer()))
-				{
-					await _repository.UpdateAsync(temp => temp.CardId == flashcard.CardId, flashcard);
-					updatedAnyCard = true;
-				}
-			}
+			var updatedAnyCard = await syncHelper.UpdateCards(userFlashcards, localCards);
 
 			if (updatedAnyCard)
 			{
-				localCards = (await _repository.GetAllAsync(temp => temp.UserId == userId!.Value)).ToHashSet();
+				localCards = await syncHelper.RetrieveCardsFromStorage();
 			}
 
-			var result = localCards.Union(userFlashcards, new FlashcardIdEqualityComparer()).ToHashSet();
+			var result = await syncHelper.UnionLocalCardsWithUserCards(localCards, userFlashcards);
 
-			var cardsToCreate = result.Except(localCards, new FlashcardIdEqualityComparer()).ToList();
+			var cardsToCreate = await syncHelper.GetCardsToCreate(result, localCards);
 
-			if (cardsToCreate.Count != 0)
+			if (cardsToCreate.Count() != 0)
 			{
 				await _repository.CreateManyAsync(cardsToCreate);
 			}
 
 			return _mapper.Map<IEnumerable<FlashcardResponse>>(result);
-		}	
+		}
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
 			await ValidationHelper.ValidateObjects(flashcards, userId);
 
+			var syncHelper = InitializeSyncHelper(userId!.Value);
+
 			var totallyAffected = 0;
 
-			var cards = await ConvertRequests(userId!.Value, flashcards!);
+			var cards = await syncHelper.ConvertRequests(flashcards!);
 
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
 
@@ -123,18 +118,9 @@ namespace Flashcards.Core.Services
 			return new AffectedResponse { Affected = totallyAffected };
 		}
 
-		private async Task<IEnumerable<Flashcard>> ConvertRequests(Guid userId, IEnumerable<FlashcardRequest> flashcards)
+		private SyncHelper InitializeSyncHelper(Guid userId)
 		{
-			return await Task.FromResult(flashcards.Select(temp => new Flashcard()
-			{
-				CardId = temp.CardId,
-				EFactor = temp.EFactor,
-				NextRepeatDate = temp.NextRepeatDate,
-				MainSide = temp.MainSide,
-				OppositeSide = temp.OppositeSide,
-				RepetitionCount = temp.RepetitionCount,
-				UserId = userId
-			}));
+			return new SyncHelper(userId, _repository, new FlashcardIdEqualityComparer());
 		}
 	}
 }

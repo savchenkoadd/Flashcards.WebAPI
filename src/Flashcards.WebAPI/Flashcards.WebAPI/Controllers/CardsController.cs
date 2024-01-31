@@ -33,18 +33,16 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> GetAllCards()
 		{
-			await User.EnsureIsAuthenticated();
+			User.EnsureIsAuthenticated();
 
-			var userId = (await _userManager.GetUserAsync(User)).Id;
-
-			var cards = await _cardService.GetAllAsync(userId);
+			var cards = await _cardService.GetAllAsync(await GetCurrentUserId());
 
 			return cards.ToList();
 		}
 
 		//POST: /api/SyncCards
 		/// <summary>
-		/// Currently obsolete.
+		/// OBSOLETE.
 		/// Synchronizes received cards with the cards in the storage. 
 		/// Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
 		/// Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
@@ -57,11 +55,9 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
 		public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
 		{
-			await User.EnsureIsAuthenticated();
+			User.EnsureIsAuthenticated();
 
-			var user = (await _userManager.GetUserAsync(User));
-
-			return await _cardService.SyncCards(user.Id, flashcards);
+			return await _cardService.SyncCards(await GetCurrentUserId(), flashcards);
 		}
 
 		//POST: /api/DeleteCards
@@ -74,7 +70,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpDelete("[action]")]
 		public async Task<ActionResult<AffectedResponse>> DeleteCards(Guid[]? cardsIds)
 		{
-			await User.EnsureIsAuthenticated();
+			User.EnsureIsAuthenticated();
 
 			return await _cardService.DeleteCards(cardsIds);
 		}
@@ -93,11 +89,14 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest>? flashcards)
 		{
-			await User.EnsureIsAuthenticated();
+			User.EnsureIsAuthenticated();
 
-			var user = (await _userManager.GetUserAsync(User));
+			return (await _cardService.SyncAndGetCards(await GetCurrentUserId(), flashcards)).ToList();
+		}
 
-			return (await _cardService.SyncAndGetCards(user!.Id, flashcards)).ToList();
+		private async Task<Guid> GetCurrentUserId()
+		{
+			return (await _userManager.GetUserAsync(User))!.Id;
 		}
 	}
 }

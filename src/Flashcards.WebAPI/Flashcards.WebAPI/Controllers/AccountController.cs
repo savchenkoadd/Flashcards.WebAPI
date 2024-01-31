@@ -129,7 +129,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<IActionResult> Logout()
 		{
-			await User.EnsureIsAuthenticated();
+			User.EnsureIsAuthenticated();
 
 			await _signInManager.SignOutAsync();
 
