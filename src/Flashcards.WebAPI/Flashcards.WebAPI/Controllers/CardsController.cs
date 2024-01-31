@@ -1,6 +1,7 @@
 ﻿using Flashcards.Core.Domain.Identity;
 using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
+using Flashcards.WebAPI.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,10 +33,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> GetAllCards()
 		{
-			if (!User.Identity.IsAuthenticated)
-			{
-				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
-			}
+			await User.EnsureIsAuthenticated();
 
 			var userId = (await _userManager.GetUserAsync(User)).Id;
 
@@ -59,10 +57,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
         public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
 		{
-			if (!User.Identity.IsAuthenticated)
-			{
-				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
-			}
+			await User.EnsureIsAuthenticated();
 
 			var user = (await _userManager.GetUserAsync(User));
 
@@ -79,10 +74,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
 		public async Task<ActionResult<AffectedResponse>> DeleteCards(Guid[]? cardsIds)
 		{
-			if (!User.Identity.IsAuthenticated)
-			{
-				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
-			}
+			await User.EnsureIsAuthenticated();
 
 			return await _cardService.DeleteCards(cardsIds);
 		}
@@ -99,10 +91,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpPost("[action]")]
 		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest> flashcards)
 		{
-			if (!User.Identity.IsAuthenticated)
-			{
-				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
-			}
+			await User.EnsureIsAuthenticated();
 
 			var user = (await _userManager.GetUserAsync(User));
 
