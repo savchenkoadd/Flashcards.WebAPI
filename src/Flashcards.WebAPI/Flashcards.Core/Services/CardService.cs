@@ -57,11 +57,21 @@ namespace Flashcards.Core.Services
 				throw new NullReferenceException("Unable to retrieve local cards.");
 			}
 
-			var result = localCards.Union(await ConvertRequests(userId!.Value, flashcards!), new FlashcardEqualityComparer());
+			var userFlashcards = await ConvertRequests(userId!.Value, flashcards!);
+
+			foreach (var flashcard in userFlashcards)
+			{
+				if (localCards.Contains(flashcard, new FlashcardEqualityComparer()))
+				{
+					await _repository.UpdateAsync(temp => temp.CardId == flashcard.CardId, flashcard);
+				}
+			}
+
+			var result = localCards.Union(userFlashcards, new FlashcardEqualityComparer()).ToList();
 
 			var cardsToCreate = new HashSet<Flashcard>(result.Count());
 
-			if (result.Count() > localCards.Count)
+			if (result.Count > localCards.Count)
 			{
 				foreach (var item in result)
 				{

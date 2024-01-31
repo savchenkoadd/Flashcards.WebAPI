@@ -14,14 +14,14 @@ namespace Flashcards.WebAPI.Controllers
 		private readonly ICardService _cardService;
 		private readonly UserManager<ApplicationUser> _userManager;
 
-        public CardsController(
+		public CardsController(
 				ICardService cardService,
 				UserManager<ApplicationUser> userManager
 			)
-        {
-            _cardService = cardService;
+		{
+			_cardService = cardService;
 			_userManager = userManager;
-        }
+		}
 
 		//GET: /api/GetAllCards
 		/// <summary>
@@ -55,7 +55,7 @@ namespace Flashcards.WebAPI.Controllers
 		/// <param name="flashcards">List of cards.</param>
 		/// <returns>Number of affected rows after synchronizing.</returns>
 		[HttpPost("[action]")]
-        public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
+		public async Task<ActionResult<AffectedResponse>> SyncCards(List<FlashcardRequest>? flashcards)
 		{
 			await User.EnsureIsAuthenticated();
 
@@ -89,13 +89,13 @@ namespace Flashcards.WebAPI.Controllers
 		/// <param name="flashcards">External cards list</param>
 		/// <returns>Result of sync.</returns>
 		[HttpPost("[action]")]
-		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest> flashcards)
+		public async Task<ActionResult<IEnumerable<FlashcardResponse>>> SyncAndGetCards(IEnumerable<FlashcardRequest>? flashcards)
 		{
 			await User.EnsureIsAuthenticated();
 
 			var user = (await _userManager.GetUserAsync(User));
 
-			return (await _cardService.SyncAndGetCards(user.Id, flashcards)).ToList();
+			return (await _cardService.SyncAndGetCards(user!.Id, flashcards)).ToList();
 		}
 	}
 }
