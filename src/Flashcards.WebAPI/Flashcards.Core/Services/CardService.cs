@@ -50,7 +50,7 @@ namespace Flashcards.Core.Services
 		{
 			await ValidationHelper.ValidateObjects(userId, flashcards);
 
-			var localCards = (await _repository.GetAllAsync(temp => true)).ToHashSet();
+			var localCards = (await _repository.GetAllAsync(temp => temp.UserId == userId!.Value)).ToHashSet();
 
 			if (localCards is null)
 			{
