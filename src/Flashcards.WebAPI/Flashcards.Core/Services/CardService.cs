@@ -5,6 +5,7 @@ using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
 using Flashcards.Core.Services.Comparers;
 using Flashcards.Core.Services.Helpers;
+using System.Diagnostics;
 
 namespace Flashcards.Core.Services
 {
@@ -50,37 +51,34 @@ namespace Flashcards.Core.Services
 		{
 			await ValidationHelper.ValidateObjects(userId, flashcards);
 
+			var cardsIdsToDelete = flashcards!.Where(temp => temp.WhetherToDelete == true).Select(temp => temp.CardId);
+			var userFlashcards = (await ConvertRequests(userId!.Value, flashcards!)).ToList();
+
+			userFlashcards.RemoveAll(temp => cardsIdsToDelete.Contains(temp.CardId));
+
+			await _repository.DeleteManyAsync(cardsIdsToDelete);
+
 			var localCards = (await _repository.GetAllAsync(temp => temp.UserId == userId!.Value)).ToHashSet();
 
-			if (localCards is null)
-			{
-				throw new NullReferenceException("Unable to retrieve local cards.");
-			}
-
-			var userFlashcards = await ConvertRequests(userId!.Value, flashcards!);
+			var updatedAnyCard = false;
 
 			foreach (var flashcard in userFlashcards)
 			{
-				if (localCards.Contains(flashcard, new FlashcardEqualityComparer()))
+				if (localCards.Contains(flashcard, new FlashcardIdEqualityComparer()))
 				{
 					await _repository.UpdateAsync(temp => temp.CardId == flashcard.CardId, flashcard);
+					updatedAnyCard = true;
 				}
 			}
 
-			var result = localCards.Union(userFlashcards, new FlashcardEqualityComparer()).ToList();
-
-			var cardsToCreate = new HashSet<Flashcard>(result.Count());
-
-			if (result.Count > localCards.Count)
+			if (updatedAnyCard)
 			{
-				foreach (var item in result)
-				{
-					if (!localCards.Contains(item))
-					{
-						cardsToCreate.Add(item);
-					}
-				}
+				localCards = (await _repository.GetAllAsync(temp => temp.UserId == userId!.Value)).ToHashSet();
 			}
+
+			var result = localCards.Union(userFlashcards, new FlashcardIdEqualityComparer()).ToHashSet();
+
+			var cardsToCreate = result.Except(localCards, new FlashcardIdEqualityComparer()).ToList();
 
 			if (cardsToCreate.Count != 0)
 			{
@@ -88,7 +86,7 @@ namespace Flashcards.Core.Services
 			}
 
 			return _mapper.Map<IEnumerable<FlashcardResponse>>(result);
-		}
+		}	
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
@@ -115,7 +113,7 @@ namespace Flashcards.Core.Services
 				}
 			}
 
-			var cardsToDelete = allCards.Except(cards, new FlashcardEqualityComparer());
+			var cardsToDelete = allCards.Except(cards, new FlashcardIdEqualityComparer());
 
 			foreach (var card in cardsToDelete)
 			{

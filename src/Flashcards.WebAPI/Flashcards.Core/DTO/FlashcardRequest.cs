@@ -28,7 +28,6 @@ namespace Flashcards.Core.DTO
 		[DataType(DataType.Date, ErrorMessage = "DateTime is not valid.")]
 		public DateOnly NextRepeatDate { get; set; }
 
-		[Required]
 		public bool WhetherToDelete { get; set; } = false;	
 	}
 }

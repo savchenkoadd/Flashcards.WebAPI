@@ -71,7 +71,7 @@ namespace Flashcards.WebAPI.Controllers
 		/// </summary>
 		/// <param name="cardsIds">Ids of cards to be deleted</param>
 		/// <returns>Count of deleted rows</returns>
-		[HttpPost("[action]")]
+		[HttpDelete("[action]")]
 		public async Task<ActionResult<AffectedResponse>> DeleteCards(Guid[]? cardsIds)
 		{
 			await User.EnsureIsAuthenticated();
@@ -81,9 +81,11 @@ namespace Flashcards.WebAPI.Controllers
 
 		//POST: /api/SyncAndGetCards
 		/// <summary>
-		/// Synchronizes (Union) the cards with enhanced performance.
+		/// Synchronizes the cards with enhanced performance.
 		/// Cards that exist in the provided list, but do not exist in the storage will be inserted into the storage.
 		/// Cards that do not exist in the provided list, but exist in the storage will be inserted into the returned result.
+		/// Cards that has changed their properties will be updated automatically in the storage.
+		/// To mark a card to be deleted, append the additional property "whetherToDelete" and assign true. After sync, the marked cards will be automatically removed from the storage.
 		/// To use this endpoint, you must be logged in.
 		/// </summary>
 		/// <param name="flashcards">External cards list</param>
