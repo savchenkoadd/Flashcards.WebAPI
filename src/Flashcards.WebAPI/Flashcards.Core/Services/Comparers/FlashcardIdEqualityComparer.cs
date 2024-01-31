@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Flashcards.Core.Services.Comparers
 {
-	public class FlashcardEqualityComparer : IEqualityComparer<Flashcard>
+	public class FlashcardIdEqualityComparer : IEqualityComparer<Flashcard>
 	{
 		public bool Equals(Flashcard? x, Flashcard? y)
 		{

@@ -10,15 +10,16 @@ namespace Flashcards.Infrastructure.Repositories
 		private const string COLLECTION_NAME = "flashcards";
 
 		private readonly IMongoCollection<Flashcard> _flashcardsCollection;
+		private readonly FilterDefinitionBuilder<Flashcard> _builder = Builders<Flashcard>.Filter;
 
-        public CardRepository(
+		public CardRepository(
 				IMongoDatabase mongoDatabase
 			)
-        {
+		{
 			_flashcardsCollection = mongoDatabase.GetCollection<Flashcard>(COLLECTION_NAME);
-        }
+		}
 
-        public async Task CreateAsync(Flashcard entity)
+		public async Task CreateAsync(Flashcard entity)
 		{
 			await _flashcardsCollection.InsertOneAsync(entity);
 		}
@@ -32,12 +33,12 @@ namespace Flashcards.Infrastructure.Repositories
 
 		public async Task<IEnumerable<Flashcard>> GetAllAsync(Expression<Func<Flashcard, bool>> expression)
 		{
-			var found = await _flashcardsCollection.FindAsync(expression);
+			var found = await(await _flashcardsCollection.FindAsync(expression)).ToListAsync();
 
-			return await found.ToListAsync();
+			return found;
 		}
 
-		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)	
+		public async Task<int> UpdateAsync(Expression<Func<Flashcard, bool>> expression, Flashcard card)
 		{
 			var found = (await GetAllAsync(temp => temp.CardId == card.CardId)).First();
 
@@ -51,6 +52,24 @@ namespace Flashcards.Infrastructure.Repositories
 			var result = await _flashcardsCollection.ReplaceOneAsync(expression, card);
 
 			return (int)result.ModifiedCount;
+		}
+
+		public async Task<long> Count(Expression<Func<Flashcard, bool>> expression)
+		{
+			return await _flashcardsCollection.CountDocumentsAsync(expression);
+		}
+
+		public async Task CreateManyAsync(IEnumerable<Flashcard> entities)
+		{
+			await _flashcardsCollection.InsertManyAsync(entities);
+		}
+
+		public async Task<long> DeleteManyAsync(IEnumerable<Guid> guids)
+		{
+			var filter = _builder.In(card => card.CardId, guids);
+			var result = await _flashcardsCollection.DeleteManyAsync(filter);
+
+			return result.DeletedCount;
 		}
 	}
 }

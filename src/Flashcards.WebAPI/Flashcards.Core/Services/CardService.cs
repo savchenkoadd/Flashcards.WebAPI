@@ -1,22 +1,38 @@
-﻿using Flashcards.Core.Domain.Entities;
+﻿using AutoMapper;
+using Flashcards.Core.Domain.Entities;
 using Flashcards.Core.Domain.RepositoryContracts;
 using Flashcards.Core.DTO;
 using Flashcards.Core.ServiceContracts;
 using Flashcards.Core.Services.Comparers;
 using Flashcards.Core.Services.Helpers;
+using System.Diagnostics;
 
 namespace Flashcards.Core.Services
 {
 	public class CardService : ICardService
 	{
 		private readonly IRepository<Flashcard> _repository;
+		private readonly IMapper _mapper;
 
-		public CardService(IRepository<Flashcard> repository)
+		public CardService(
+				IRepository<Flashcard> repository,
+				IMapper mapper
+			)
 		{
 			_repository = repository;
+			_mapper = mapper;
 		}
 
-		public async Task<List<FlashcardResponse>> GetAllAsync(Guid? userId)
+		public async Task<AffectedResponse> DeleteCards(Guid[]? cardIds)
+		{
+			await ValidationHelper.ValidateObjects(cardIds);
+
+			var deleted = await _repository.DeleteManyAsync(cardIds!);
+
+			return new AffectedResponse { Affected = deleted };
+		}
+
+		public async Task<IEnumerable<FlashcardResponse>> GetAllAsync(Guid? userId)
 		{
 			await ValidationHelper.ValidateObjects(userId);
 
@@ -28,57 +44,83 @@ namespace Flashcards.Core.Services
 				OppositeSide = temp.OppositeSide,
 				NextRepeatDate = temp.NextRepeatDate,
 				RepetitionCount = temp.RepetitionCount
-			}).ToList();
+			});
+		}
+
+		public async Task<IEnumerable<FlashcardResponse>> SyncAndGetCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
+		{
+			await ValidationHelper.ValidateObjects(userId, flashcards);
+
+			var syncHelper = InitializeSyncHelper(userId!.Value);
+
+			var cardsIdsToDelete = await syncHelper.RetrieveCardsIdsToBeDeleted(flashcards!);
+			var userFlashcards = (await syncHelper.ConvertRequests(flashcards!)).ToList();
+
+			userFlashcards.RemoveAll(temp => cardsIdsToDelete.Contains(temp.CardId));
+
+			await _repository.DeleteManyAsync(cardsIdsToDelete);
+
+			var localCards = await syncHelper.RetrieveCardsFromStorage();
+
+			var updatedAnyCard = await syncHelper.UpdateCards(userFlashcards, localCards);
+
+			if (updatedAnyCard)
+			{
+				localCards = await syncHelper.RetrieveCardsFromStorage();
+			}
+
+			var result = await syncHelper.UnionLocalCardsWithUserCards(localCards, userFlashcards);
+
+			var cardsToCreate = await syncHelper.GetCardsToCreate(result, localCards);
+
+			if (cardsToCreate.Count() != 0)
+			{
+				await _repository.CreateManyAsync(cardsToCreate);
+			}
+
+			return _mapper.Map<IEnumerable<FlashcardResponse>>(result);
 		}
 
 		public async Task<AffectedResponse> SyncCards(Guid? userId, IEnumerable<FlashcardRequest>? flashcards)
 		{
-			// Validate input parameters
 			await ValidationHelper.ValidateObjects(flashcards, userId);
 
-			var totallyAffected = 0;
-			var cards = flashcards.Select(item => new Flashcard
-			{
-				CardId = item.CardId,
-				EFactor = item.EFactor,
-				MainSide = item.MainSide,
-				OppositeSide = item.OppositeSide,
-				NextRepeatDate = item.NextRepeatDate,
-				RepetitionCount = item.RepetitionCount,
-				UserId = userId.Value
-			}).ToList();
+			var syncHelper = InitializeSyncHelper(userId!.Value);
 
-			// Retrieve all cards for the user
+			var totallyAffected = 0;
+
+			var cards = await syncHelper.ConvertRequests(flashcards!);
+
 			var allCards = await _repository.GetAllAsync(temp => temp.UserId == userId);
 
 			foreach (var item in cards)
 			{
-				// Check if the card already exists
 				var existingCard = allCards.FirstOrDefault(temp => temp.CardId == item.CardId);
 
 				if (existingCard == null)
 				{
-					// Create a new card
 					await _repository.CreateAsync(item);
 					totallyAffected++;
 				}
 				else
 				{
-					// Update existing card
 					totallyAffected += await _repository.UpdateAsync(temp => temp.CardId == item.CardId, item);
 				}
 			}
 
-			// Identify cards to delete
-			var cardsToDelete = allCards.Except(cards, new FlashcardEqualityComparer());
+			var cardsToDelete = allCards.Except(cards, new FlashcardIdEqualityComparer());
 
-			// Delete cards
 			foreach (var card in cardsToDelete)
 			{
 				totallyAffected += await _repository.DeleteAsync(temp => temp.CardId == card.CardId);
 			}
 
 			return new AffectedResponse { Affected = totallyAffected };
+		}
+
+		private SyncHelper InitializeSyncHelper(Guid userId)
+		{
+			return new SyncHelper(userId, _repository, new FlashcardIdEqualityComparer());
 		}
 	}
 }

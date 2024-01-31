@@ -1,6 +1,7 @@
 ﻿using Flashcards.Core.Domain.Identity;
 using Flashcards.Core.DTO.Identity;
 using Flashcards.Core.ServiceContracts;
+using Flashcards.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -128,10 +129,7 @@ namespace Flashcards.WebAPI.Controllers
 		[HttpGet("[action]")]
 		public async Task<IActionResult> Logout()
 		{
-			if (!User.Identity.IsAuthenticated)
-			{
-				return Problem(detail: "You must be logged in to use this endpoint.", statusCode: 400);
-			}
+			User.EnsureIsAuthenticated();
 
 			await _signInManager.SignOutAsync();
 

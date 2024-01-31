@@ -33,6 +33,7 @@
         </member>
         <member name="M:Flashcards.WebAPI.Controllers.CardsController.SyncCards(System.Collections.Generic.List{Flashcards.Core.DTO.FlashcardRequest})">
             <summary>
+            OBSOLETE.
             Synchronizes received cards with the cards in the storage. 
             Cards which do not exist in the provided list, but exist in the storage will be permanently removed from the storage.
             Cards which exist in the provided list, but do not exist in the storage will be automatically created in the storage.
@@ -42,6 +43,26 @@
             </summary>
             <param name="flashcards">List of cards.</param>
             <returns>Number of affected rows after synchronizing.</returns>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.DeleteCards(System.Guid[])">
+            <summary>
+            Deletes cards in the storage with the provided ids.
+            To use this endpoint, you must be logged in.
+            </summary>
+            <param name="cardsIds">Ids of cards to be deleted</param>
+            <returns>Count of deleted rows</returns>
+        </member>
+        <member name="M:Flashcards.WebAPI.Controllers.CardsController.SyncAndGetCards(System.Collections.Generic.IEnumerable{Flashcards.Core.DTO.FlashcardRequest})">
+            <summary>
+            Synchronizes the cards with enhanced performance.
+            Cards that exist in the provided list, but do not exist in the storage will be inserted into the storage.
+            Cards that do not exist in the provided list, but exist in the storage will be inserted into the returned result.
+            Cards that has changed their properties will be updated automatically in the storage.
+            To mark a card to be deleted, append the additional property "whetherToDelete" and assign true. After sync, the marked cards will be automatically removed from the storage.
+            To use this endpoint, you must be logged in.
+            </summary>
+            <param name="flashcards">External cards list</param>
+            <returns>Result of sync.</returns>
         </member>
     </members>
 </doc>

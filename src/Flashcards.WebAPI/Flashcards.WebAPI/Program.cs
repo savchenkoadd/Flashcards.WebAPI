@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using Flashcards.WebAPI.Profiles;
 
 namespace Flashcards.WebAPI
 {
@@ -63,10 +64,7 @@ namespace Flashcards.WebAPI
 				options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.xml"));
 			});
 
-			//builder.Services.AddAuthorization(options =>
-			//{
-			//	options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-			//});
+			builder.Services.AddAutoMapper(typeof(CommonMapperProfile));
 
 			var app = builder.Build();
 
